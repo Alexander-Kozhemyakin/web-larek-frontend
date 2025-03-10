@@ -1,6 +1,6 @@
-import { IProductItem } from "../../types";
+import { IBasketModel, IProductItem } from "../../types";
 
-export class BasketModel {
+export class BasketModel implements IBasketModel {
     protected _basketProducts: IProductItem[];
 
     constructor() {
@@ -29,10 +29,14 @@ export class BasketModel {
 
     deleteItemCard(item: IProductItem) {
         this._basketProducts = this._basketProducts.filter((card) => card.id !== item.id);
-    };
+    }
 
     checkProductInBasket(item: IProductItem) {
         return this._basketProducts.find((card) => card.id === item.id);
+    }
+
+    clearBasket() {
+        this._basketProducts = [];
     }
 
 }

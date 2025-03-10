@@ -1,11 +1,5 @@
-import { IProductItem } from "../../types";
+import { IDataModel, IProductItem } from "../../types";
 import { IEvents } from "../base/events";
-
-export interface IDataModel {
-    productCards: IProductItem[];
-    selectedCard: IProductItem;
-    setPreview(item: IProductItem): void;
-}
 
 export class DataModel implements IDataModel {
     _productCards: IProductItem[];

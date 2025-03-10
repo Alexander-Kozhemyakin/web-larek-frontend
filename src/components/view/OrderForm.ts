@@ -31,12 +31,21 @@ export class OrderForm implements IOrder {
       e.preventDefault();
       this.events.emit('formContact:open');
     });
+
   }
 
   set paymentSelect(paymentMethod: string) {
     this.buttonAll.forEach(button => {
         button.classList.toggle('button_alt-active', button.name === paymentMethod);
     })
+  }
+
+  toggleErrors(address: string, payment: string): void {
+    if(address !== undefined) {
+      this.formErrors.textContent = `Заполните адрес`;
+    } else if (payment !== undefined) {
+      this.formErrors.textContent = `Выберите способ оплаты`;
+    }
   }
 
   render(): HTMLElement {

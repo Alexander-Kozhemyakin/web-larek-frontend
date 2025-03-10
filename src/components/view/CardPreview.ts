@@ -48,6 +48,7 @@ export class CardPreview extends Card implements ICard {
       this.button.setAttribute('disabled', 'true');
     }
   }
+  
 
   render(data: IProductItem): HTMLElement {
     this._cardCategory.textContent = data.category;

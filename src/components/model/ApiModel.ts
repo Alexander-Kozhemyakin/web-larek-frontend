@@ -1,5 +1,6 @@
-import { IProductItem } from "../../types/index";
+import { IProductItem, OrderData } from "../../types/index";
 import { Api, ApiListResponse } from "../base/api";
+
 export class ApiModel extends Api {
     cdn: string;
     items: IProductItem[];
@@ -14,5 +15,13 @@ export class ApiModel extends Api {
             ...item,
             image: this.cdn + item.image
         })));
-    } 
+    }
+
+    async sendOrder(orderData: OrderData): Promise<Response> {
+        return fetch(`${this.baseUrl}/order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+    }
 }

@@ -61,6 +61,76 @@ HTML, SCSS, TS, Webpack
 
 ## Описание классов Model, которые позволяют хранить и обрабатывать данные с сервера и от пользователей.
 
+# Корзина (IBasketModel)
+
+interface IBasketModel {
+  basketProducts: IProductItem[];  // Товары в корзине
+  getCounter(): number;            // Количество товаров
+  getSum(): number;                // Сумма заказа
+  pushItemCard(item: IProductItem): void;  // Добавить товар
+  deleteItemCard(item: IProductItem): void;// Удалить товар
+  checkProductInBasket(item: IProductItem): IProductItem | undefined;
+}
+
+# Модель данных (IDataModel)
+
+interface IDataModel {
+  productCards: IProductItem[];  // Все доступные товары
+  selectedCard: IProductItem;    // Выбранный товар (превью)
+  setPreview(item: IProductItem): void; // Выбор товара
+}
+
+# Модель формы (IFormModel)
+
+interface IFormModel {
+  items: string[];       // ID выбранных товаров
+  paymentSelect: string; // Выбранный способ оплаты
+  email: string;         // Введенный email
+  phone: string;         // Введенный телефон
+  address: string;       // Введенный адрес
+  totalSum: number;      // Итоговая сумма
+  formErrors: IFormErrors; // Ошибки валидации
+  
+  // Методы валидации:
+  validateAddressAndPayment(): boolean;
+  validateEmailAndPhone(): void;
+}
+
+## UI-Компоненты
+
+# Корзина (IBasket)
+
+interface IBasket {
+  basket: HTMLElement;         // Контейнер корзины
+  basketList: HTMLElement;     // Список товаров
+  basketPrice: HTMLElement;    // Блок с суммой
+  headerBasketCounter: HTMLElement; // Счетчик в хедере
+  counterBasket(value: number): void; // Обновить счетчик
+  renderAllPrice(price: number): void; // Обновить сумму
+}
+
+# Карточка товара (ICard)
+
+interface ICard {
+  render(data: IProductItem): HTMLElement; // Генерация HTML
+  categoryColor(value: string): string;    // Цвет категории
+}
+
+# Ошибки формы (IFormErrors)
+
+interface IFormErrors {
+  email?: string;    // Ошибка валидации email
+  phone?: string;    // Ошибка валидации телефона
+  address?: string;  // Ошибка адреса
+  payment?: string;  // Ошибка выбора оплаты
+}
+
+# Действия (IActions)
+
+interface IActions {
+  onClick(event: MouseEvent): void; // Обработчик кликов
+}
+
 ### Класс ApiModel наследуется от класса Api, передаёт и получает данные от сервера.
 
 Методы:
