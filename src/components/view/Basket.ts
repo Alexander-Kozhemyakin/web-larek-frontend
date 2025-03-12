@@ -21,7 +21,7 @@ export class Basket implements IBasket {
       this.headerBasketCounter = document.querySelector('.header__basket-counter');
   
       this.button.addEventListener('click', () => { this.events.emit('order:open') });
-      this.headerBasketButton.addEventListener('click', () => { this.events.emit('basket:open') });
+      // this.headerBasketButton.addEventListener('click', () => { this.events.emit('basket:open') });
   
       this.items = [];
     }
@@ -34,9 +34,9 @@ export class Basket implements IBasket {
       }
     }
 
-    counterBasket(value: number) {
-      this.headerBasketCounter.textContent = String(value);
-    }
+    // counterBasket(value: number) {
+    //   this.headerBasketCounter.textContent = String(value);
+    // }
 
     renderAllPrice(price: number) {
       this.basketPrice.textContent = `${String(price)} синапсов`;

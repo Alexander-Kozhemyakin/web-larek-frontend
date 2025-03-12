@@ -33,46 +33,53 @@ export class FormModel implements IFormModel {
         }
     }
 
-    validateAddressAndPayment() {
-        if(this.address === '') {
+    validateAddressAndPayment(): boolean {
+        this.formErrors = {};
+        let isValid = true;
+    
+        if (!this.address.trim()) {
             this.formErrors.address = 'Введите адрес';
-        } else {
-            delete this.formErrors['address'];
+            isValid = false;
         }
-
-        if(this.paymentSelect === '') {
+    
+        if (!this.paymentSelect) {
             this.formErrors.payment = 'Выберите способ оплаты';
-        } else {
-            delete this.formErrors['payment'];
+            isValid = false;
         }
-
-        if(Object.keys(this.formErrors).length === 0) {
-            this.events.emit('formErrors:addressAndPayment', this.formErrors);
-            return true;
-        } else {
-            this.events.emit('formErrors:addressAndPayment', this.formErrors);
+    
+        this.events.emit('formErrors:change', this.formErrors);
+        return isValid;
+    }
+    
+    validateEmailAndPhone(): boolean {
+        this.formErrors = {};
+        let isValid = true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^\+?\d{10,15}$/;
+    
+        if (!this.email.trim() || !emailRegex.test(this.email)) {
+            this.formErrors.email = 'Введите корректный email';
+            isValid = false;
         }
+    
+        if (!this.phone.trim() || !phoneRegex.test(this.phone)) {
+            this.formErrors.phone = 'Введите телефон в формате +XXXXXXXXXXX';
+            isValid = false;
+        }
+    
+        this.events.emit('formErrors:change', this.formErrors);
+        return isValid;
+    }
+    
+    // Добавляем общий метод валидации
+    validateAll(): boolean {
+        return this.validateAddressAndPayment() 
+            && this.validateEmailAndPhone();
     }
 
-    validateEmailAndPhone() {
-        if(this.email === '') {
-            this.formErrors.email = 'Введите email';
-        } else {
-            delete this.formErrors['email'];
-        }
-
-        if(this.phone === '') {
-            this.formErrors.phone = 'Введите телефон';
-        } else {
-            delete this.formErrors['phone'];
-        }
-
-        if(Object.keys(this.formErrors).length === 0) {
-            this.events.emit('formErrors:emailAndPhone', this.formErrors);
-            return true;
-        } else {
-            this.events.emit('formErrors:emailAndPhone', this.formErrors);
-        }
+    setPayment(method: string) {
+        this.paymentSelect = method;
+        this.validateAddressAndPayment();
     }
 
     reset() {

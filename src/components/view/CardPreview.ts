@@ -22,18 +22,20 @@ export class CardPreview extends Card implements ICard {
   }
 
   categoryColor(value: string): string {
-    switch (value) {
-        case 'софт-скил':
-            return 'soft';
-        case 'хард-скил':
-            return 'hard';
-        case 'кнопка':
-            return 'button';
-        case 'дополнительное':
-            return 'additional';
-        default :  // категория 'другое'
-            return 'other'
-          }
+    switch (value.toLowerCase()) { // Добавляем нормализацию регистра
+      case 'софт-скил':
+        return 'soft';
+      case 'хард-скил':
+        return 'hard';
+      case 'кнопка':
+        return 'button';
+      case 'дополнительное':
+        return 'additional';
+      case 'другое': // Явно указываем дефолтный случай
+        return 'other';
+      default:
+        return 'other'; // Все неизвестные категории попадут сюда
+    }
   }
 
   updateButtonState(data: IProductItem) {
@@ -48,11 +50,10 @@ export class CardPreview extends Card implements ICard {
       this.button.setAttribute('disabled', 'true');
     }
   }
-  
 
   render(data: IProductItem): HTMLElement {
     this._cardCategory.textContent = data.category;
-    this._cardCategory.classList.add(`card__category_${this.categoryColor(data.category)}`);
+    this._cardCategory.className = `card__category card__category_${this.categoryColor(data.category)}`; 
     this._cardTitle.textContent = data.title;
     this._cardImage.src = data.image;
     this._cardImage.alt = this._cardTitle.textContent;

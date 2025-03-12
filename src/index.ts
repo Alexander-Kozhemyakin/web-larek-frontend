@@ -15,6 +15,7 @@ import { OrderForm } from './components/view/OrderForm';
 import { FormModel } from './components/model/FormModel';
 import { ContactForm } from './components/view/ContactForm';
 import { Success } from './components/view/Success';
+import { Page } from './components/view/Page';
 
 const cardCatalogTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
 const cardPreviewTemplate = document.querySelector('#card-preview') as HTMLTemplateElement;
@@ -26,6 +27,7 @@ const successTemplate = document.querySelector('#success') as HTMLTemplateElemen
 
 const apiModel = new ApiModel(CDN_URL, API_URL);
 const events = new EventEmitter();
+const page = new Page(document.querySelector('.page__wrapper') as HTMLTemplateElement, events);
 const dataModel = new DataModel(events);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const basket = new Basket(basketTemplate, events);
@@ -58,7 +60,8 @@ events.on('modal:close', () => modal.locked = false);
 
 events.on('card:addBasket', () => {
     basketModel.pushItemCard(dataModel.selectedCard);
-    basket.counterBasket(basketModel.getCounter());
+    // basket.counterBasket(basketModel.getCounter());
+    page.counterBasket(basketModel.getCounter());
     const cardPreview = new CardPreview(cardPreviewTemplate, events, basketModel);
     cardPreview.updateButtonState(dataModel.selectedCard);
     modal.close();
@@ -82,7 +85,8 @@ events.on('basket:open', () => {
 
 events.on('basket:basketItemRemove', (item: IProductItem) => {
     basketModel.deleteItemCard(item);
-    basket.counterBasket(basketModel.getCounter());
+    // basket.counterBasket(basketModel.getCounter());
+    page.counterBasket(basketModel.getCounter());
     basket.renderAllPrice(basketModel.getSum());
     basket.items = basketModel.basketProducts.map((item, index) => {
         const basketItem = new BasketItem(basketItemTemplate, events, {onClick: () => events.emit('basket:basketItemRemove', item)});
@@ -107,6 +111,17 @@ events.on('order:changeInputAddress', (data : { inputName:string, inputValue:str
     formModel.getInputAddress(data.inputName, data.inputValue);
 });
 
+events.on<{ type: string; value: string }>('contact:change', (data) => {
+    switch (data.type) {
+        case 'email':
+            formModel.email = data.value;
+            break;
+        case 'phone':
+            formModel.phone = data.value;
+            break;
+    }
+});
+
 events.on('formContact:open', () => {
     if(formModel.validateAddressAndPayment()) {
         modal.content = contactForm.render();
@@ -119,49 +134,52 @@ events.on('formErrors:addressAndPayment', ( errors: { address: string, payment: 
 });
 
 events.on('formErrors:emailAndPhone', ( errors: { email: string, phone: string }) => {
-    contactForm.toggleErrors(errors.email, errors.phone);
+    contactForm.toggleErrors();
 });
 
 events.on('contact:submit', async () => {
-    if (formModel.validateEmailAndPhone()) {
-        try {
-            // Формируем orderData из текущих данных
-            const orderData = {
-                items: basketModel.basketProducts.map(item => item.id),
-                total: basketModel.getSum(),
-                address: formModel.address,
-                payment: formModel.paymentSelect,
-                email: formModel.email,
-                phone: formModel.phone
-            };
-
-            // Отправка на сервер
-            await apiModel.sendOrder(orderData);
-
-            // Показываем окно успеха (данные формы еще не очищены)
-            modal.content = successForm.render();
-            basketModel.getSum();
-            successForm.price = basketModel.getSum();
-            modal.render();
-            basketModel.clearBasket();
-            formModel.reset();
-            basket.counterBasket(basketModel.getCounter()); 
-
-        } catch (error) {
-            console.error('Ошибка:', error);
+    try {
+        if (!formModel.validateAddressAndPayment() || !formModel.validateEmailAndPhone()) {
+            throw new Error('Исправьте ошибки в форме');
         }
+
+        if (basketModel.getCounter() === 0) {
+            throw new Error('Корзина пуста');
+        }
+
+        const total = basketModel.getSum();
+
+        const orderData = {
+            payment: formModel.paymentSelect,
+            email: formModel.email,
+            phone: formModel.phone,
+            address: formModel.address,
+            total: basketModel.getSum(),
+            items: basketModel.basketProducts.map(item => item.id)
+        };
+
+        // 4. Правильный вызов API
+        const result = await apiModel.sendOrder(orderData);
+        
+        // 5. Обновление интерфейса
+        basketModel.clearBasket();
+        formModel.reset();
+        page.counterBasket(0);
+        
+        // 6. Предполагаем, что successForm и errorForm объявлены
+        successForm.price = total;
+        modal.content = successForm.render();
+        modal.open();
+
+    } catch (error) {
+        console.error('Ошибка заказа:', error);
+        
+        // 7. Обработка разных типов ошибок
+        const message = error instanceof Error 
+            ? error.message 
+            : (error as { message?: string }).message || 'Неизвестная ошибка';
     }
 });
-
-events.on('contact:submit', () => {
-    modal.content = successForm.render();
-    basketModel.getSum();
-    successForm.price = basketModel.getSum();
-    modal.render();
-    basketModel.clearBasket();
-    formModel.reset();
-    basket.counterBasket(basketModel.getCounter());    
-})
 
 events.on('success:close', () => {
     modal.close();

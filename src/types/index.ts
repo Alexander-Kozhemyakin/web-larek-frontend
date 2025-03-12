@@ -56,7 +56,7 @@ export interface IBasket {
     headerBasketButton: HTMLButtonElement;
     headerBasketCounter: HTMLElement;
     items: HTMLElement[];
-    counterBasket(value: number): void;
+    // counterBasket(value: number): void;
     renderAllPrice(price: number): void;
     render(): HTMLElement;
 }

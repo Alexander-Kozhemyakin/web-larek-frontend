@@ -37,7 +37,7 @@ export class Card implements ICard {
   }
 
   render(data: IProductItem): HTMLElement {
-    this._cardCategory.classList.add(`card__category_${this.categoryColor(data.category)}`);
+    this._cardCategory.className = (`card__category_${this.categoryColor(data.category)}`);
     this._cardCategory.textContent = data.category;
     this._cardTitle.textContent = data.title;
     this._cardImage.src = data.image;
